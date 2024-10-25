@@ -17,7 +17,7 @@ export function App() {
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        setProducts(data);
+        setProducts(data);// Update state with fetched products
       } catch (error) {
         console.error("Error fetching products:", error);
         alert("Failed to load products. Ensure the server is running.");
@@ -30,7 +30,7 @@ export function App() {
   return (
     <div>
       <Navbar 
-        currentPage={currentPage} // Dodaj currentPage prop
+        currentPage={currentPage} 
         setCurrentPage={setCurrentPage} 
         setThankYouMessage={setThankYouMessage} 
         setProducts={setProducts}

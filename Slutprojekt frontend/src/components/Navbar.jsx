@@ -5,7 +5,7 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
   
   const handleSearch = async (e) => {
     e.preventDefault();
-    const searchTerm = e.target.elements.search.value.trim();
+    const searchTerm = e.target.elements.search.value.trim();// Get the search term from input
     console.log('Search Term:', searchTerm); 
   
     try {
@@ -30,9 +30,9 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
       if (response.ok) {
         const data = await response.json();
         console.log('Filtered Products:', data); 
-        setProducts(data);
+        setProducts(data); // Update products state with filtered results
       } else {
-        setProducts([]);
+        setProducts([]); // If no products found, clear the products state
         alert('No products found.'); 
       }
     } catch (error) {
@@ -51,7 +51,7 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
         throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      setProducts(data);
+      setProducts(data); // Update products state when navigating
     } catch (error) {
       console.error("Error fetching products:", error);
       alert("Failed to load products. Ensure the server is running.");
@@ -68,7 +68,6 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
       <button className="nav-button" onClick={goToProducts}>Products</button>
       <button className="nav-button" onClick={goToCart}>Cart</button>
       
-      {/* Uvjetno prikazivanje forme za pretraživanje */}
       {currentPage === 'products' && (
         <form onSubmit={handleSearch}>
           <input type="text" name="search" placeholder="Search products..." />
