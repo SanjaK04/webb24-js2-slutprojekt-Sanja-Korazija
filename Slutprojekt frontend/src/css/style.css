@@ -1,0 +1,86 @@
+.product-card {
+    border: 1px solid #ccc;
+    padding: 16px;
+    width: 200px;
+    margin: 16px;
+}
+
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .cart-item img {
+    width: 80px;
+    margin-right: 10px;
+  }
+  
+  .button-container {
+    display: flex;
+    gap: 10px; /* Razmak između dugmadi */
+}
+
+.cart-button {
+    background-color: #4CAF50; /* Zeleno */
+    color: white; /* Bijeli tekst */
+    padding: 10px 15px; /* Unutarnje margine */
+    border: none; /* Bez okvira */
+    border-radius: 5px; /* Zaobljeni rubovi */
+    cursor: pointer; /* Pokazivač kursora */
+    transition: background-color 0.3s; /* Efekt prijelaza */
+}
+
+.cart-button:hover {
+    background-color: #45a049; /* Tamnije zelena pri hoveru */
+}
+
+
+.nav-button:hover {
+  background-color: #A9A9A9; /* Tamnija siva pri hoveru */
+  transform: scale(1.05); /* Lagano uvećanje pri hoveru */
+}
+nav {
+  display: flex; /* Postavljanje gumba u red */
+  justify-content: flex-start; /* Poravnanje gumba lijevo */
+  margin: 20px 0; /* Razmak iznad i ispod navigacije */
+}
+
+.nav-button {
+  background-color: #C0C0C0; /* Srebrno sivkasta boja */
+  color: black; /* Crni tekst */
+  padding: 15px 25px; /* Povećane unutarnje margine za veće gumbe */
+  border: none; /* Bez okvira */
+  border-radius: 5px; /* Zaobljeni rubovi */
+  cursor: pointer; /* Pokazivač kursora */
+  transition: background-color 0.3s, transform 0.2s; /* Efekt prijelaza */
+  font-size: 18px; /* Povećana veličina fonta */
+  margin: 0 10px; /* Razmak između gumba */
+}
+
+.nav-button:hover {
+  background-color: #A9A9A9; /* Tamnija siva pri hoveru */
+  transform: scale(1.05); /* Lagano uvećanje pri hoveru */
+}
+
+input[type="text"] {
+  padding: 15px; /* Povećane unutarnje margine za input */
+  font-size: 18px; /* Povećana veličina fonta */
+  margin-right: 10px; /* Razmak desno od inputa */
+  border: 1px solid #C0C0C0; /* Sivi okvir */
+  border-radius: 5px; /* Zaobljeni rubovi */
+}
+
+.thank-you-message {
+  text-align: center; /* Centriranje teksta */
+  font-size: 60px; /* Veća veličina fonta */
+  margin: 20px 0; /* Razmak iznad i ispod natpisa */
+  color: #333; /* Tamno siva boja za dobar kontrast */
+}
+
+.logo {
+  width: 100px; /* Postavi željenu veličinu loga */
+  height: 20px; /* Održava omjer visine */
+  margin-right: 20px; /* Razmak desno od loga */
+}

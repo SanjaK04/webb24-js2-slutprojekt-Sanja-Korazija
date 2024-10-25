@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "T-shirt",
+    "price": 199,
+    "quantity": 104,
+    "image": "https://cdn.pixabay.com/photo/2023/05/06/01/34/t-shirt-7973404_1280.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Jeans",
+    "price": 1200,
+    "quantity": 22,
+    "image": "https://cdn.pixabay.com/photo/2019/03/12/13/26/jeans-4050815_1280.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Jacket",
+    "price": 2354,
+    "quantity": 0,
+    "image": "https://cdn.pixabay.com/photo/2017/10/06/04/32/jacket-2821961_1280.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Hat",
+    "price": 149,
+    "quantity": 62,
+    "image": "https://cdn.pixabay.com/photo/2016/05/17/22/16/baby-1399332_1280.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Shoes",
+    "price": 765,
+    "quantity": 65,
+    "image": "https://cdn.pixabay.com/photo/2020/08/24/21/40/fashion-5515135_1280.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Socks",
+    "price": 58,
+    "quantity": 142,
+    "image": "https://cdn.pixabay.com/photo/2019/12/10/19/15/sport-4686589_1280.jpg"
+  }
+]
