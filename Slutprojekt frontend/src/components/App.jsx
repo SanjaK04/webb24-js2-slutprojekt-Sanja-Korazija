@@ -3,7 +3,6 @@ import { Navbar } from './Navbar';
 import { ProductsPage } from './ProductsPage';
 import { CartPage } from './CartPage';
 
-
 export function App() {
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
@@ -18,7 +17,7 @@ export function App() {
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        setProducts(data); // Update products state with fetched data
+        setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
         alert("Failed to load products. Ensure the server is running.");
@@ -31,6 +30,7 @@ export function App() {
   return (
     <div>
       <Navbar 
+        currentPage={currentPage} // Dodaj currentPage prop
         setCurrentPage={setCurrentPage} 
         setThankYouMessage={setThankYouMessage} 
         setProducts={setProducts}

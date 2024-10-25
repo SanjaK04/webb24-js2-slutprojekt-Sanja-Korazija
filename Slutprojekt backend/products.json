@@ -31,14 +31,14 @@
     "id": 5,
     "name": "Shoes",
     "price": 765,
-    "quantity": 65,
+    "quantity": 64,
     "image": "https://cdn.pixabay.com/photo/2020/08/24/21/40/fashion-5515135_1280.jpg"
   },
   {
     "id": 6,
     "name": "Socks",
     "price": 58,
-    "quantity": 142,
+    "quantity": 141,
     "image": "https://cdn.pixabay.com/photo/2019/12/10/19/15/sport-4686589_1280.jpg"
   }
 ]
