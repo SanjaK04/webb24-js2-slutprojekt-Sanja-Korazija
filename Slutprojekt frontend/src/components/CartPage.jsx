@@ -1,13 +1,15 @@
-import React from 'react';
+import React from "react";
 
 export function CartPage({ cart, setCart, setThankYouMessage }) {
+  
+  // Funkcija za brisanje košarice
   const clearCart = async () => {
     try {
       const response = await fetch('http://localhost:3000/cart/clear', { method: 'POST' });
       if (!response.ok) {
         throw new Error('Failed to clear cart');
       }
-      setCart([]);  // Clear the current cart state
+      setCart([]); 
       alert('Cart cleared!');
     } catch (error) {
       alert(error.message);
@@ -19,24 +21,44 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
       alert('Cart is empty.');
       return;
     }
-
+  
     try {
+      // Ažuriraj količinu proizvoda na backendu nakon plaćanja
+      const updatedProducts = cart.map((item) => ({
+        id: item.id,
+        quantity: item.quantity - item.quantity, // Ovdje ažuriraj količinu proizvoda u skladu s kupljenim
+      }));
+  
+      // Ažuriraj proizvode na backendu
+      await Promise.all(
+        updatedProducts.map(product =>
+          fetch(`http://localhost:3000/products/${product.id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ quantity: product.quantity }),
+          })
+        )
+      );
+  
+      // Nakon uspješnog plaćanja, očisti košaricu i postavi poruku
       const response = await fetch('http://localhost:3000/cart/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cart }),
       });
-
+  
       if (!response.ok) {
         throw new Error('Failed to checkout');
       }
+  
       const result = await response.json();
-      setThankYouMessage(result.message);
-      setCart([]); // Clear the cart after successful checkout
+      setThankYouMessage(result.message); // Postavi poruku 'Thank you' nakon uspješnog plačanja
+      setCart([]); // Očisti košaricu nakon uspješnog plačanja
     } catch (error) {
       alert(error.message);
     }
   };
+  
 
   return (
     <div>

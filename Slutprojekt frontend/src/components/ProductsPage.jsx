@@ -2,20 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { ProductCard } from './ProductCard';
 
 export function ProductsPage({ products, setCart }) {
-  const [filteredProducts, setFilteredProducts] = useState(products); // U početku filtriraj proizvode s početnim stanjem
-
-  // Kada se products promijene, filtrirani proizvodi će se ažurirati
+  const [cart, setLocalCart] = useState([]);  
+  const [productQuantities, setProductQuantities] = useState({});
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  
   useEffect(() => {
-    setFilteredProducts(products);
+    if (products && products.length > 0) {
+      const storedQuantities = JSON.parse(localStorage.getItem('productQuantities')) || {};
+      const quantities = products.reduce((acc, product) => {
+        acc[product.id] = storedQuantities[product.id] || product.quantity;
+        return acc;
+      }, {});
+      setProductQuantities(quantities);
+    }
+    setFilteredProducts(products); 
+    
   }, [products]);
 
-  const handleSort = (order) => {
-    const sorted = [...products].sort((a, b) =>
-      order === 'asc' ? a.price - b.price : b.price - a.price
-    );
-    setFilteredProducts(sorted);  // Ažuriraj filtrirane proizvode prema sortiranju
+  const updateProductQuantity = (productId, newQuantity) => {
+    const updatedQuantities = { ...productQuantities, [productId]: newQuantity };
+    setProductQuantities(updatedQuantities);
   };
 
+  const clearCart = () => {
+    setLocalCart([]);
+    localStorage.setItem('cart', JSON.stringify([]));
+
+    const resetQuantities = products.reduce((acc, product) => {
+      acc[product.id] = product.quantity;
+      return acc;
+    }, {});
+    setProductQuantities(resetQuantities); // Resetira količine nakon pražnjenja
+  };
+
+  
+
+  // Function to handle sorting of products based on price
+  const handleSort = (order) => {
+    const sorted = [...filteredProducts].sort((a, b) =>
+      order === 'asc' ? a.price - b.price : b.price - a.price
+    );
+    setFilteredProducts(sorted);// Update filtered products with sorted results
+  };
 
   return (
     <div>
@@ -27,15 +55,18 @@ export function ProductsPage({ products, setCart }) {
         </select>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} setCart={setCart} />
-          ))
-        ) : (
-          <p>No products available.</p>
-        )}
+        {filteredProducts.map((product) => (
+          <ProductCard 
+            key={product.id} 
+            product={product} 
+            quantity={productQuantities[product.id] || 0}
+            setCart={setCart} 
+            updateProductQuantity={updateProductQuantity} 
+          />
+        ))}
       </div>
-    </div>
+  </div>
   );
 }
-
+  
+        

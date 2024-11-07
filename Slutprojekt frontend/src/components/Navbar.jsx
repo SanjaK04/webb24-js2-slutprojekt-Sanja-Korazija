@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setProducts, cart }) {
-  const getCartItemCount = () => {
-    return cart.reduce((total, item) => total + item.quantity, 0); // Zbroji količinu svih proizvoda u košarici
-  };
+
+  const [cartItemCount, setCartItemCount] = useState(0);
+
+  // Funkcija koja se poziva kad se košarica ažurira
+  useEffect(() => {
+    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    setCartItemCount(totalItems);  // Ažuriraj broj proizvoda u košarici
+  }, [cart]); // Ovaj useEffect se poziva svaki put kad se košarica promijeni
 
   const handleSearch = async (e) => {
     e.preventDefault();
-    const searchTerm = e.target.elements.search.value.trim();  // Dobij pretragu iz inputa
-    console.log('Search Term:', searchTerm);
+    const searchTerm = e.target.elements.search.value.trim();
   
     try {
       if (!searchTerm) {
@@ -17,26 +21,29 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        setProducts(data);  // Ažuriraj proizvode s originalnim podacima
-      } else {
-        const response = await fetch('http://localhost:3000/products/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ searchTerm })
-        });
+        setProducts(data);
+        return;
+      }
   
-        if (!response.ok) {
-          throw new Error('No products found');
-        }
+      const response = await fetch('http://localhost:3000/products/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ searchTerm }),
+      });
+  
+      if (response.ok) {
         const data = await response.json();
-        setProducts(data);  // Ažuriraj proizvode s filtriranim rezultatima
+        setProducts(data); // Update products state with filtered results
+      } else {
+        setProducts([]); // If no products found, clear the products state
+        alert('No products found.');
       }
     } catch (error) {
       console.error("Error fetching products:", error);
-      alert("Failed to load products. Ensure the server is running.");
+      alert("Failed to load products.");
     }
   };
-  
+
   const goToProducts = async () => {
     setCurrentPage('products');
     setThankYouMessage('');
@@ -47,10 +54,10 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
         throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      setProducts(data); // Update products state with original order from backend
+      setProducts(data); // Update products state when navigating
     } catch (error) {
       console.error("Error fetching products:", error);
-      alert("Failed to load products. Ensure the server is running.");
+      alert("Failed to load products.");
     }
   };
 
@@ -63,7 +70,7 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
     <nav>
       <button className="nav-button" onClick={goToProducts}>Products</button>
       <button className="nav-button" onClick={goToCart}>
-        Cart ({getCartItemCount() > 0 ? getCartItemCount() : ''})
+        Cart ({cartItemCount > 0 ? cartItemCount : ''}) {/* Prikazuje broj proizvoda u košarici */}
       </button>
       
       {currentPage === 'products' && (

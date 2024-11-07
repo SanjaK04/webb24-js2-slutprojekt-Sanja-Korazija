@@ -70,9 +70,14 @@ app.post('/cart/add', async (req, res) => {
 
 
 
-app.post('/cart/clear', (req, res) => {
+app.post('/cart/clear', async (req, res) => {
   cart = [];  // Očisti košaricu
-  res.status(200).json({ message: 'Cart cleared successfully', cart });
+  try {
+    const products = await getAllProducts(); // Ponovno dohvatiti sve proizvode
+    res.status(200).json({ message: 'Cart cleared successfully', products }); // Pošaljemo sve proizvode
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to retrieve products after clearing cart', error: error.message });
+  }
 });
 
 
