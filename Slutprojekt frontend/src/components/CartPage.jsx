@@ -7,8 +7,8 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
       if (!response.ok) {
         throw new Error('Failed to clear cart');
       }
-      setCart([]); 
-      alert('Cart cleared!'); // Clear the current cart state
+      setCart([]);  // Clear the current cart state
+      alert('Cart cleared!');
     } catch (error) {
       alert(error.message);
     }
@@ -31,7 +31,7 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
         throw new Error('Failed to checkout');
       }
       const result = await response.json();
-      setThankYouMessage(result.message);// Set thank you message after successful checkout
+      setThankYouMessage(result.message);
       setCart([]); // Clear the cart after successful checkout
     } catch (error) {
       alert(error.message);

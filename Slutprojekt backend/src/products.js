@@ -9,9 +9,13 @@ let cart = [];
 
 
 async function getAllProducts() {
-  const data = await fs.readFile(productsFilePath, 'utf-8');
-  const products = JSON.parse(data);
-  return products;
+  try {
+    const data = await fs.readFile(productsFilePath, 'utf-8');  // Čitanje podataka iz JSON-a
+    const products = JSON.parse(data);  // Parsiranje JSON podataka u JavaScript objekte
+    return products;
+  } catch (error) {
+    throw new Error('Failed to read products from file');
+  }
 }
 
 

@@ -1,12 +1,14 @@
-
 import React from 'react';
 
-export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setProducts }) {
-  
+export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setProducts, cart }) {
+  const getCartItemCount = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0); // Zbroji količinu svih proizvoda u košarici
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
-    const searchTerm = e.target.elements.search.value.trim();// Get the search term from input
-    console.log('Search Term:', searchTerm); 
+    const searchTerm = e.target.elements.search.value.trim();  // Dobij pretragu iz inputa
+    console.log('Search Term:', searchTerm);
   
     try {
       if (!searchTerm) {
@@ -15,32 +17,26 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        setProducts(data);
-        return;
-      }
-  
-      const response = await fetch('http://localhost:3000/products/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ searchTerm }),
-      });
-  
-      console.log('Response Status:', response.status);
-  
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Filtered Products:', data); 
-        setProducts(data); // Update products state with filtered results
+        setProducts(data);  // Ažuriraj proizvode s originalnim podacima
       } else {
-        setProducts([]); // If no products found, clear the products state
-        alert('No products found.'); 
+        const response = await fetch('http://localhost:3000/products/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ searchTerm })
+        });
+  
+        if (!response.ok) {
+          throw new Error('No products found');
+        }
+        const data = await response.json();
+        setProducts(data);  // Ažuriraj proizvode s filtriranim rezultatima
       }
     } catch (error) {
       console.error("Error fetching products:", error);
       alert("Failed to load products. Ensure the server is running.");
     }
   };
-
+  
   const goToProducts = async () => {
     setCurrentPage('products');
     setThankYouMessage('');
@@ -51,7 +47,7 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
         throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      setProducts(data); // Update products state when navigating
+      setProducts(data); // Update products state with original order from backend
     } catch (error) {
       console.error("Error fetching products:", error);
       alert("Failed to load products. Ensure the server is running.");
@@ -66,7 +62,9 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
   return (
     <nav>
       <button className="nav-button" onClick={goToProducts}>Products</button>
-      <button className="nav-button" onClick={goToCart}>Cart</button>
+      <button className="nav-button" onClick={goToCart}>
+        Cart ({getCartItemCount() > 0 ? getCartItemCount() : ''})
+      </button>
       
       {currentPage === 'products' && (
         <form onSubmit={handleSearch}>
