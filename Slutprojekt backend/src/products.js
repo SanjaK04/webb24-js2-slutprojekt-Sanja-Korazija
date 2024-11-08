@@ -21,24 +21,25 @@ async function getAllProducts() {
 
 async function updateProductQuantity(id, purchasedQuantity) {
   const products = await getAllProducts(); 
-  const productIndex = products.findIndex((product) => product.id === parseInt(id)); // Find the index of the product
+  const productIndex = products.findIndex((product) => product.id === parseInt(id)); // Pronađi proizvod
 
   if (productIndex === -1) {
     throw new Error('Product not found');
   }
 
-// Check if there is enough stock available
   if (products[productIndex].quantity < purchasedQuantity) {
     throw new Error('Not enough stock');
   }
 
-// Update the product quantity
+  // Ažuriraj količinu proizvoda
   products[productIndex].quantity -= purchasedQuantity; 
   
-  await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));
+  // Spremi ažurirani niz proizvoda
+  await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2)); 
 
   return products[productIndex]; 
 }
+
 
 
 async function buyProduct(id, quantity) {

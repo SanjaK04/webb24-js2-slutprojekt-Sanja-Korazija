@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export function CartPage({ cart, setCart, setThankYouMessage }) {
-  
+  // Dohvati košaricu iz localStorage prilikom učitavanja stranice
+  useEffect(() => {
+    const storedCart = localStorage.getItem('cart');
+    if (storedCart) {
+      setCart(JSON.parse(storedCart));  // Ako postoji košarica u localStorage, postavi je u state
+    }
+  }, [setCart]);
+
   // Funkcija za brisanje košarice
   const clearCart = async () => {
     try {
@@ -10,6 +17,7 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
         throw new Error('Failed to clear cart');
       }
       setCart([]); 
+      localStorage.setItem('cart', JSON.stringify([]));  // Brišemo košaricu iz localStorage
       alert('Cart cleared!');
     } catch (error) {
       alert(error.message);
@@ -21,15 +29,14 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
       alert('Cart is empty.');
       return;
     }
-  
+
     try {
-      // Ažuriraj količinu proizvoda na backendu nakon plaćanja
+      // Ažuriranje količina proizvoda na backendu
       const updatedProducts = cart.map((item) => ({
         id: item.id,
-        quantity: item.quantity - item.quantity, // Ovdje ažuriraj količinu proizvoda u skladu s kupljenim
+        quantity: item.quantity - item.quantity, // Smanjujemo količinu za broj u košarici
       }));
-  
-      // Ažuriraj proizvode na backendu
+
       await Promise.all(
         updatedProducts.map(product =>
           fetch(`http://localhost:3000/products/${product.id}`, {
@@ -39,26 +46,25 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
           })
         )
       );
-  
-      // Nakon uspješnog plaćanja, očisti košaricu i postavi poruku
+
       const response = await fetch('http://localhost:3000/cart/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cart }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to checkout');
       }
-  
+
       const result = await response.json();
-      setThankYouMessage(result.message); // Postavi poruku 'Thank you' nakon uspješnog plačanja
-      setCart([]); // Očisti košaricu nakon uspješnog plačanja
+      setThankYouMessage(result.message);
+      setCart([]);  // Resetiramo košaricu u aplikaciji
+      localStorage.setItem('cart', JSON.stringify([]));  // Brišemo košaricu iz localStorage
     } catch (error) {
       alert(error.message);
     }
   };
-  
 
   return (
     <div>

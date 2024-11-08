@@ -8,16 +8,20 @@ export function ProductsPage({ products, setCart }) {
   
   useEffect(() => {
     if (products && products.length > 0) {
-      const storedQuantities = JSON.parse(localStorage.getItem('productQuantities')) || {};
-      const quantities = products.reduce((acc, product) => {
-        acc[product.id] = storedQuantities[product.id] || product.quantity;
+      // Početne količine proizvoda sa servera
+      const initialQuantities = products.reduce((acc, product) => {
+        acc[product.id] = product.quantity; // Postavljanje početne količine
         return acc;
       }, {});
-      setProductQuantities(quantities);
+      setProductQuantities(initialQuantities);
     }
     setFilteredProducts(products); 
-    
   }, [products]);
+
+  useEffect(() => {
+    // Pohranjivanje količina proizvoda u localStorage svaki put kad se promijene
+    localStorage.setItem('productQuantities', JSON.stringify(productQuantities));
+  }, [productQuantities]);
 
   const updateProductQuantity = (productId, newQuantity) => {
     const updatedQuantities = { ...productQuantities, [productId]: newQuantity };
@@ -25,24 +29,52 @@ export function ProductsPage({ products, setCart }) {
   };
 
   const clearCart = () => {
+    // Očisti košaricu
     setLocalCart([]);
     localStorage.setItem('cart', JSON.stringify([]));
 
-    const resetQuantities = products.reduce((acc, product) => {
+    // Vrati količine proizvoda na početne vrijednosti
+    const initialQuantities = products.reduce((acc, product) => {
       acc[product.id] = product.quantity;
       return acc;
     }, {});
-    setProductQuantities(resetQuantities); // Resetira količine nakon pražnjenja
+    setProductQuantities(initialQuantities); // Resetiraj količine na početne vrijednosti
   };
 
-  
+  const handlePayment = () => {
+    // Pretpostavljamo da je plaćanje uspješno i da dobivamo nove količine od backend-a
+    fetch('http://localhost:3000/cart/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Ažuriranje proizvoda prema novim količinama koje dolaze sa servera
+        if (data.products) {
+          const updatedQuantities = data.products.reduce((acc, product) => {
+            acc[product.id] = product.quantity;
+            return acc;
+          }, {});
+          setProductQuantities(updatedQuantities); // Ažuriraj količine sa servera
+          setLocalCart([]); // Očisti košaricu nakon uspješne kupovine
+          localStorage.setItem('cart', JSON.stringify([])); // Očisti košaricu u localStorage
+          alert("Purchase successful! Thank you for your order.");
+        } else {
+          throw new Error("Invalid response from backend.");
+        }
+      })
+      .catch(error => {
+        alert("An error occurred during payment: " + error.message);
+      });
+  };
 
-  // Function to handle sorting of products based on price
+  // Funkcija za sortiranje proizvoda po cijeni
   const handleSort = (order) => {
     const sorted = [...filteredProducts].sort((a, b) =>
       order === 'asc' ? a.price - b.price : b.price - a.price
     );
-    setFilteredProducts(sorted);// Update filtered products with sorted results
+    setFilteredProducts(sorted); // Ažurira filtrirane proizvode sa sortiranim rezultatima
   };
 
   return (
@@ -55,18 +87,23 @@ export function ProductsPage({ products, setCart }) {
         </select>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {filteredProducts.map((product) => (
-          <ProductCard 
-            key={product.id} 
-            product={product} 
-            quantity={productQuantities[product.id] || 0}
-            setCart={setCart} 
-            updateProductQuantity={updateProductQuantity} 
-          />
-        ))}
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <ProductCard 
+              key={product.id} 
+              product={product} 
+              quantity={productQuantities[product.id] || 0}
+              setCart={setCart} 
+              updateProductQuantity={updateProductQuantity} 
+            />
+          ))
+        ) : (
+          <p>No products available</p>
+        )}
       </div>
-  </div>
+
+      <button onClick={clearCart}>Clear Cart</button>
+      <button onClick={handlePayment}>Pay</button>
+    </div>
   );
 }
-  
-        

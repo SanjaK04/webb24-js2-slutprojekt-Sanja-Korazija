@@ -3,7 +3,7 @@
     "id": 1,
     "name": "T-shirt",
     "price": 199,
-    "quantity": 78,
+    "quantity": 61,
     "image": "https://cdn.pixabay.com/photo/2023/05/06/01/34/t-shirt-7973404_1280.jpg"
   },
   {
@@ -24,14 +24,14 @@
     "id": 4,
     "name": "Hat",
     "price": 149,
-    "quantity": 61,
+    "quantity": 60,
     "image": "https://cdn.pixabay.com/photo/2016/05/17/22/16/baby-1399332_1280.jpg"
   },
   {
     "id": 5,
     "name": "Shoes",
     "price": 765,
-    "quantity": 63,
+    "quantity": 65,
     "image": "https://cdn.pixabay.com/photo/2020/08/24/21/40/fashion-5515135_1280.jpg"
   },
   {

@@ -6,7 +6,9 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
 
   // Funkcija koja se poziva kad se košarica ažurira
   useEffect(() => {
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+    // Ako postoji košarica u localStorage, učitaj ju
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    const totalItems = storedCart.reduce((total, item) => total + item.quantity, 0);
     setCartItemCount(totalItems);  // Ažuriraj broj proizvoda u košarici
   }, [cart]); // Ovaj useEffect se poziva svaki put kad se košarica promijeni
 
@@ -33,9 +35,9 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
   
       if (response.ok) {
         const data = await response.json();
-        setProducts(data); // Update products state with filtered results
+        setProducts(data); // Ažuriraj state sa filtriranim proizvodima
       } else {
-        setProducts([]); // If no products found, clear the products state
+        setProducts([]); // Ako nije pronađen nijedan proizvod, očisti listu
         alert('No products found.');
       }
     } catch (error) {
@@ -47,14 +49,14 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
   const goToProducts = async () => {
     setCurrentPage('products');
     setThankYouMessage('');
-  
+ 
     try {
       const response = await fetch('http://localhost:3000/products');
       if (!response.ok) {
         throw new Error('Failed to fetch products');
       }
       const data = await response.json();
-      setProducts(data); // Update products state when navigating
+      setProducts(data); // Ažuriraj state sa svim proizvodima
     } catch (error) {
       console.error("Error fetching products:", error);
       alert("Failed to load products.");

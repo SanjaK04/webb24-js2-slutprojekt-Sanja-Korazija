@@ -9,7 +9,11 @@ export function App() {
   const [currentPage, setCurrentPage] = useState('products');
   const [thankYouMessage, setThankYouMessage] = useState('');
 
+  // Učitavanje košarice iz localStorage prilikom učitavanja stranice
   useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(savedCart);
+
     const fetchProducts = async () => {
       try {
         const response = await fetch('http://localhost:3000/products');
@@ -17,15 +21,20 @@ export function App() {
           throw new Error('Failed to fetch products');
         }
         const data = await response.json();
-        setProducts(data);// Update state with fetched products
+        setProducts(data);
       } catch (error) {
         console.error("Error fetching products:", error);
         alert("Failed to load products. Ensure the server is running.");
       }
     };
-    
+
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    // Spremanje košarice u localStorage svaki put kad se promijeni
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   return (
     <div>
@@ -54,4 +63,4 @@ export function App() {
       )}
     </div>
   );
-}                     
+}

@@ -1,6 +1,6 @@
 import path from 'path';
-import fs from 'fs/promises'; // Ensure fs is imported for file operations
 import express from 'express';   
+import fs from 'fs/promises'
 import cors from 'cors';
 import { getAllProducts, searchProducts, updateProductQuantity } from './products.js'; 
 
@@ -69,16 +69,18 @@ app.post('/cart/add', async (req, res) => {
 });
 
 
-
 app.post('/cart/clear', async (req, res) => {
   cart = [];  // Očisti košaricu
   try {
     const products = await getAllProducts(); // Ponovno dohvatiti sve proizvode
+    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2)); // Osigurajte da se promjene odražavaju u datoteci
     res.status(200).json({ message: 'Cart cleared successfully', products }); // Pošaljemo sve proizvode
   } catch (error) {
     res.status(500).json({ message: 'Failed to retrieve products after clearing cart', error: error.message });
   }
 });
+
+
 
 
 app.post('/cart/checkout', async (req, res) => {
@@ -88,25 +90,24 @@ app.post('/cart/checkout', async (req, res) => {
   }
 
   try {
-    const products = await getAllProducts();
+    const products = await getAllProducts(); // Dohvati sve proizvode
 
     for (const item of checkoutCart) {
       const existingProduct = products.find(p => p.id === item.id);
       if (!existingProduct || existingProduct.quantity < item.quantity) {
         return res.status(400).json({ message: `Not enough stock for product ${item.id}` });
       }
+      // Ažuriraj količinu proizvoda
       await updateProductQuantity(item.id, item.quantity);
     }
 
-
-    // Očisti cart
-    cart = [];
+    // Nakon što je checkout uspješan, očisti košaricu
+    cart = []; // Očisti košaricu u memoriji
     res.status(200).json({ message: 'Thank you for your purchase!' });
   } catch (error) {
     res.status(500).json({ message: 'Error purchasing products', error });
   }
 });
-
 
 
 app.listen(PORT, () => {

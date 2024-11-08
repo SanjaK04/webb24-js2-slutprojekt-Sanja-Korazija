@@ -1,13 +1,11 @@
 import React from 'react';
 
 export function ProductCard({ product, quantity, setCart, updateProductQuantity }) {
-  
-  const handleAddToCart = () => {
-    if (quantity > 0) {   // Provera da li je proizvod na zalihama
-      // Smanjivanje količine proizvoda
-      updateProductQuantity(product.id, quantity - 1);
 
-      // API poziv za dodavanje proizvoda u košaricu
+  const handleAddToCart = () => {
+    if (quantity > 0) {
+      updateProductQuantity(product.id, quantity - 1); // Minskar frontend-lagret
+  
       fetch(`http://localhost:3000/cart/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -20,8 +18,9 @@ export function ProductCard({ product, quantity, setCart, updateProductQuantity 
           return response.json();
         })
         .then(result => {
-          // Ažuriraj košaricu s novim podacima iz rezultata
           setCart(result.cart);
+          // Spremanje košarice u localStorage
+          localStorage.setItem('cart', JSON.stringify(result.cart)); 
           alert('Product added to cart!');
         })
         .catch(error => {
@@ -31,6 +30,7 @@ export function ProductCard({ product, quantity, setCart, updateProductQuantity 
       alert('Product is out of stock');
     }
   };
+  
 
   return (
     <div className="product-card">
