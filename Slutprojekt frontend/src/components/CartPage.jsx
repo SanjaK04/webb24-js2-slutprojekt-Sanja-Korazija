@@ -1,23 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 export function CartPage({ cart, setCart, setThankYouMessage }) {
-  // Dohvati košaricu iz localStorage prilikom učitavanja stranice
+  // Dohvati stanje košarice iz backend-a prilikom učitavanja stranice
   useEffect(() => {
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));  // Ako postoji košarica u localStorage, postavi je u state
-    }
-  }, [setCart]);
+    const fetchCartState = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/cart/state');
+        if (!response.ok) {
+          throw new Error('Failed to fetch cart state');
+        }
+        const data = await response.json();
+        setCart(data.cart);  // Postavi ažuriranu košaricu u state
+      } catch (error) {
+        console.error('Error fetching cart state:', error);
+        alert('Failed to load cart.');
+      }
+    };
 
-  // Funkcija za brisanje košarice
+    fetchCartState();
+  }, [setCart]); // Ovaj useEffect se poziva svaki put kad se košarica promijeni
+
   const clearCart = async () => {
     try {
       const response = await fetch('http://localhost:3000/cart/clear', { method: 'POST' });
       if (!response.ok) {
         throw new Error('Failed to clear cart');
       }
-      setCart([]); 
-      localStorage.setItem('cart', JSON.stringify([]));  // Brišemo košaricu iz localStorage
+      setCart([]);
       alert('Cart cleared!');
     } catch (error) {
       alert(error.message);
@@ -31,22 +40,6 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
     }
 
     try {
-      // Ažuriranje količina proizvoda na backendu
-      const updatedProducts = cart.map((item) => ({
-        id: item.id,
-        quantity: item.quantity - item.quantity, // Smanjujemo količinu za broj u košarici
-      }));
-
-      await Promise.all(
-        updatedProducts.map(product =>
-          fetch(`http://localhost:3000/products/${product.id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ quantity: product.quantity }),
-          })
-        )
-      );
-
       const response = await fetch('http://localhost:3000/cart/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -59,8 +52,7 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
 
       const result = await response.json();
       setThankYouMessage(result.message);
-      setCart([]);  // Resetiramo košaricu u aplikaciji
-      localStorage.setItem('cart', JSON.stringify([]));  // Brišemo košaricu iz localStorage
+      setCart([]);
     } catch (error) {
       alert(error.message);
     }

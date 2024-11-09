@@ -6,27 +6,37 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
 
   // Funkcija koja se poziva kad se košarica ažurira
   useEffect(() => {
-    // Ako postoji košarica u localStorage, učitaj ju
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    const totalItems = storedCart.reduce((total, item) => total + item.quantity, 0);
-    setCartItemCount(totalItems);  // Ažuriraj broj proizvoda u košarici
-  }, [cart]); // Ovaj useEffect se poziva svaki put kad se košarica promijeni
+    // Dohvati stanje košarice i ažurirane količine
+    const fetchCartState = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/cart/state');
+        if (response.ok) {
+          const data = await response.json();
+          // Računanje ukupnog broja proizvoda u košarici
+          const totalItems = data.cart.reduce((total, item) => total + item.quantity, 0);
+          setCartItemCount(totalItems);
+        } else {
+          alert('Failed to fetch cart state.');
+        }
+      } catch (error) {
+        alert('Error fetching cart state.');
+      }
+    };
 
+    fetchCartState();
+  }, [cart]); // Ažuriraj svaki put kad se košarica promijeni
+
+  
   const handleSearch = async (e) => {
     e.preventDefault();
     const searchTerm = e.target.elements.search.value.trim();
   
-    try {
-      if (!searchTerm) {
-        const response = await fetch('http://localhost:3000/products');
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-        const data = await response.json();
-        setProducts(data);
-        return;
-      }
+    if (!searchTerm) {
+      alert("Please enter a search term");
+      return;
+    }
   
+    try {
       const response = await fetch('http://localhost:3000/products/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,17 +45,19 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
   
       if (response.ok) {
         const data = await response.json();
-        setProducts(data); // Ažuriraj state sa filtriranim proizvodima
+        console.log('Filtered products from search:', data);  // Logiranje rezultata pretrage
+        setProducts(data); // Postavljanje filtriranih proizvoda na frontend
       } else {
-        setProducts([]); // Ako nije pronađen nijedan proizvod, očisti listu
-        alert('No products found.');
+        const result = await response.json();
+        alert(result.message || 'Error occurred during search');
       }
     } catch (error) {
       console.error("Error fetching products:", error);
       alert("Failed to load products.");
     }
   };
-
+  
+  
   const goToProducts = async () => {
     setCurrentPage('products');
     setThankYouMessage('');

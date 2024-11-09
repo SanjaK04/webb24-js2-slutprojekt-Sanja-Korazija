@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './Navbar';
 import { ProductsPage } from './ProductsPage';
 import { CartPage } from './CartPage';
@@ -8,11 +8,25 @@ export function App() {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState('products');
   const [thankYouMessage, setThankYouMessage] = useState('');
+  const [serverError, setServerError] = useState(false);  // Dodan state za server error
 
-  // Učitavanje košarice iz localStorage prilikom učitavanja stranice
+  const fetchCartState = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/cart/state');
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart state');
+      }
+      const data = await response.json();
+      setCart(data.cart);
+      setServerError(false);
+    } catch (error) {
+      console.error('Error fetching cart state:', error);
+      setServerError(true);
+    }
+  };
+
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setCart(savedCart);
+    fetchCartState();
 
     const fetchProducts = async () => {
       try {
@@ -22,19 +36,15 @@ export function App() {
         }
         const data = await response.json();
         setProducts(data);
+        setServerError(false);
       } catch (error) {
-        console.error("Error fetching products:", error);
-        alert("Failed to load products. Ensure the server is running.");
+        console.error('Error fetching products:', error);
+        setServerError(true);
       }
     };
 
     fetchProducts();
   }, []);
-
-  useEffect(() => {
-    // Spremanje košarice u localStorage svaki put kad se promijeni
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
 
   return (
     <div>
@@ -44,17 +54,26 @@ export function App() {
         setThankYouMessage={setThankYouMessage} 
         setProducts={setProducts}
         cart={cart}
+        serverError={serverError} // Prosljeđujemo serverError u Navbar
       />
+
+      {/* Prikazivanje samo jedne poruke o grešci */}
+      {serverError && (
+        <h3 className="error-message">
+          The server is currently unavailable. Please try again later.
+        </h3>
+      )}
 
       {thankYouMessage && <h3 className="thank-you-message">{thankYouMessage}</h3>}
 
-      {!thankYouMessage && currentPage === 'products' && (
+      {!thankYouMessage && currentPage === 'products' && !serverError && (
         <ProductsPage 
           products={products} 
           setCart={setCart} 
+          fetchCartState={fetchCartState} 
         />
       )}
-      {!thankYouMessage && currentPage === 'cart' && (
+      {!thankYouMessage && currentPage === 'cart' && !serverError && (
         <CartPage 
           cart={cart} 
           setCart={setCart} 

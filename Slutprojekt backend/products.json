@@ -3,7 +3,7 @@
     "id": 1,
     "name": "T-shirt",
     "price": 199,
-    "quantity": 61,
+    "quantity": 54,
     "image": "https://cdn.pixabay.com/photo/2023/05/06/01/34/t-shirt-7973404_1280.jpg"
   },
   {
@@ -38,7 +38,7 @@
     "id": 6,
     "name": "Socks",
     "price": 58,
-    "quantity": 118,
+    "quantity": 116,
     "image": "https://cdn.pixabay.com/photo/2019/12/10/19/15/sport-4686589_1280.jpg"
   }
 ]
