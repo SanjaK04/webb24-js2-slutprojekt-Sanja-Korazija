@@ -1,16 +1,13 @@
 import React from 'react';
 
-export function ProductCard({ product, quantity, setCart, updateProductQuantity }) {
+export function ProductCard({ product, quantity = 0, setCart }) {
   const handleAddToCart = () => {
     if (quantity > 0) {
-      // Smanji količinu proizvoda na frontendu
-      updateProductQuantity(product.id, quantity - 1);
-
       // Dodaj proizvod u košaricu na backendu
       fetch(`http://localhost:3000/cart/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: product.id }),
+        body: JSON.stringify({ id: product.id, quantity: 1 }), // Dodaj samo 1 proizvod u košaricu
       })
         .then(response => {
           if (!response.ok) {
@@ -19,7 +16,8 @@ export function ProductCard({ product, quantity, setCart, updateProductQuantity 
           return response.json();
         })
         .then(result => {
-          setCart(result.cart); // Ažurira košaricu
+          // Ažuriraj košaricu
+          setCart(result.cart); 
           alert('Product added to cart!');
         })
         .catch(error => {

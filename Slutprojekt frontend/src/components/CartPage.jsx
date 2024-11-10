@@ -33,30 +33,30 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
     }
   };
 
-  const checkout = async () => {
-    if (cart.length === 0) {
-      alert('Cart is empty.');
-      return;
+ const checkout = async () => {
+  if (cart.length === 0) {
+    alert('Cart is empty.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:3000/cart/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cart }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to checkout');
     }
 
-    try {
-      const response = await fetch('http://localhost:3000/cart/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cart }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to checkout');
-      }
-
-      const result = await response.json();
-      setThankYouMessage(result.message);
-      setCart([]);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+    const result = await response.json();
+    setThankYouMessage(result.message);
+    setCart([]); // Ovdje očisti košaricu nakon što je checkout uspješan
+  } catch (error) {
+    alert(error.message);
+  }
+};
 
   return (
     <div>

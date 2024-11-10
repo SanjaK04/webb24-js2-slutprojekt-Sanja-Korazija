@@ -15,26 +15,30 @@ app.use(express.json());
 
 let cart = [];  // Košarica se čuva u memoriji dok korisnik ne završi kupovinu
 
-// Ruta za dohvaćanje proizvoda s ažuriranim količinama
+// Ruta za dohvaćanje svih proizvoda s ažuriranim količinama prema stanju u košarici
 app.get('/products', async (req, res) => {
   try {
-    const products = await getAllProducts();  // Dohvati sve proizvode
+    // Dohvati sve proizvode
+    const products = await getAllProducts();
 
     // Ažuriraj količine proizvoda prema stanju u košarici
     const updatedProducts = products.map(product => {
       const cartItem = cart.find(item => item.id === product.id);
       if (cartItem) {
-        return { ...product, quantity: product.quantity - cartItem.quantity };  // Smanji količinu prema košarici
+        // Ažuriraj količinu proizvoda prema stanju u košarici
+        return { ...product, quantity: product.quantity - cartItem.quantity };
       }
-      return product;
+      return product; // Ako proizvod nije u košarici, količina ostaje nepromijenjena
     });
 
-    res.status(200).json(updatedProducts);  // Pošaljemo ažurirane proizvode
+    // Pošaljemo ažurirane proizvode
+    res.status(200).json(updatedProducts);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Failed to fetch products', error: error.message });
   }
 });
+
 
 // Ruta za pretragu proizvoda
 app.post('/products/search', async (req, res) => {
@@ -55,34 +59,6 @@ app.post('/products/search', async (req, res) => {
   }
 });
 
-// Ruta za pretragu proizvoda s ažuriranim količinama prema stanju u košarici
-app.post('/products/aftersearch', async (req, res) => {
-  const { searchTerm } = req.body;
-
-  if (!searchTerm) {
-    return res.status(400).json({ message: 'Search term is required' });
-  }
-
-  try {
-    const filteredProducts = await searchProducts(searchTerm);  // Filtriraj proizvode prema pretrazi
-    const updatedProducts = filteredProducts.map(product => {
-      const cartItem = cart.find(item => item.id === product.id);
-      if (cartItem) {
-        // Ažuriraj količinu proizvoda prema stanju u košarici
-        return { ...product, quantity: product.quantity - cartItem.quantity };
-      }
-      return product;  // Ako nije u košarici, vrati originalnu količinu
-    });
-
-    if (updatedProducts.length === 0) {
-      return res.status(404).json({ message: 'No products found' });
-    }
-
-    res.status(200).json(updatedProducts);  // Pošaljemo ažurirane proizvode sa smanjenim količinama prema košarici
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to search products', error: error.message });
-  }
-});
 
 
 // Ruta za dodavanje proizvoda u košaricu
