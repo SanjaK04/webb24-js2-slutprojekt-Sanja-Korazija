@@ -1,13 +1,18 @@
+//Grundläggande stil för produktkort, inklusive marginaler och padding
+
 import React from 'react';
 
-export function ProductCard({ product, quantity = 0, setCart }) {
+export function ProductCard({ product, quantity, setCart, updateProductQuantity }) {
   const handleAddToCart = () => {
     if (quantity > 0) {
-      // Dodaj proizvod u košaricu na backendu
+      
+      updateProductQuantity(product.id, quantity - 1);
+
+      
       fetch(`http://localhost:3000/cart/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: product.id, quantity: 1 }), // Dodaj samo 1 proizvod u košaricu
+        body: JSON.stringify({ id: product.id, quantity: 1 }),
       })
         .then(response => {
           if (!response.ok) {
@@ -16,7 +21,6 @@ export function ProductCard({ product, quantity = 0, setCart }) {
           return response.json();
         })
         .then(result => {
-          // Ažuriraj košaricu
           setCart(result.cart); 
           alert('Product added to cart!');
         })
@@ -33,7 +37,7 @@ export function ProductCard({ product, quantity = 0, setCart }) {
       <img src={product.image} alt={product.name} style={{ maxWidth: '100%', height: 'auto' }} />
       <h3>{product.name}</h3>
       <p>Price: {product.price} SEK</p>
-      <p>Available: {quantity}</p> {/* Prikazivanje dostupne količine */}
+      <p>Available: {quantity}</p>
       <button onClick={handleAddToCart} disabled={quantity <= 0}>Buy</button>
     </div>
   );

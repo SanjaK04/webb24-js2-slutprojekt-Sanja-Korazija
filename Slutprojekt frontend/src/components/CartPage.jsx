@@ -1,7 +1,9 @@
+//Visar produkter i kundvagnen, inklusive totalt pris. Möjliggör för användare att tömma kundvagnen eller genomföra köp.
+
 import React, { useState, useEffect } from "react";
 
 export function CartPage({ cart, setCart, setThankYouMessage }) {
-  // Dohvati stanje košarice iz backend-a prilikom učitavanja stranice
+
   useEffect(() => {
     const fetchCartState = async () => {
       try {
@@ -10,7 +12,7 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
           throw new Error('Failed to fetch cart state');
         }
         const data = await response.json();
-        setCart(data.cart);  // Postavi ažuriranu košaricu u state
+        setCart(data.cart);  
       } catch (error) {
         console.error('Error fetching cart state:', error);
         alert('Failed to load cart.');
@@ -18,7 +20,7 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
     };
 
     fetchCartState();
-  }, [setCart]); // Ovaj useEffect se poziva svaki put kad se košarica promijeni
+  }, [setCart]); 
 
   const clearCart = async () => {
     try {
@@ -33,30 +35,30 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
     }
   };
 
- const checkout = async () => {
-  if (cart.length === 0) {
-    alert('Cart is empty.');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:3000/cart/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cart }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to checkout');
+  const checkout = async () => {
+    if (cart.length === 0) {
+      alert('Cart is empty.');
+      return;
     }
 
-    const result = await response.json();
-    setThankYouMessage(result.message);
-    setCart([]); // Ovdje očisti košaricu nakon što je checkout uspješan
-  } catch (error) {
-    alert(error.message);
-  }
-};
+    try {
+      const response = await fetch('http://localhost:3000/cart/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cart }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to checkout');
+      }
+
+      const result = await response.json();
+      setThankYouMessage(result.message);
+      setCart([]);
+    } catch (error) {
+      alert(error.message);
+    }
+  };
 
   return (
     <div>
@@ -87,3 +89,4 @@ export function CartPage({ cart, setCart, setThankYouMessage }) {
     </div>
   );
 }
+

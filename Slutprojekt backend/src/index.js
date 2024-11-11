@@ -1,94 +1,129 @@
+//Huvudfilen för servern som definierar rutter för produkter och kundvagn.
+
 import path from 'path';
-import express from 'express';   
+import express from 'express';
 import fs from 'fs/promises';
 import cors from 'cors';
-import { getAllProducts, searchProducts, updateProductQuantity } from './products.js'; 
+import { getAllProducts, searchProducts, updateProductQuantity } from './products.js';
 
 const app = express();
 const PORT = 3000;
 
-// Define the path to the products file
-const productsFilePath = path.join('products.json');  // Putanja do JSON datoteke
+
+const productsFilePath = path.join('products.json');  
 
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
 
-let cart = [];  // Košarica se čuva u memoriji dok korisnik ne završi kupovinu
+let cart = [];  
 
-// Ruta za dohvaćanje svih proizvoda s ažuriranim količinama prema stanju u košarici
+
 app.get('/products', async (req, res) => {
   try {
-    // Dohvati sve proizvode
-    const products = await getAllProducts();
+    const products = await getAllProducts();  
 
-    // Ažuriraj količine proizvoda prema stanju u košarici
+    
     const updatedProducts = products.map(product => {
       const cartItem = cart.find(item => item.id === product.id);
       if (cartItem) {
-        // Ažuriraj količinu proizvoda prema stanju u košarici
+        
         return { ...product, quantity: product.quantity - cartItem.quantity };
       }
-      return product; // Ako proizvod nije u košarici, količina ostaje nepromijenjena
+      return product;  
     });
 
-    // Pošaljemo ažurirane proizvode
-    res.status(200).json(updatedProducts);
+    res.status(200).json(updatedProducts);  
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Failed to fetch products', error: error.message });
+    res.status(500).json({ message: 'Unable to fetch products', error: error.message });
   }
 });
 
 
-// Ruta za pretragu proizvoda
 app.post('/products/search', async (req, res) => {
   const { searchTerm } = req.body;
-  
+
   if (!searchTerm) {
-    return res.status(400).json({ message: 'Search term is required' });
+    return res.status(400).json({ message: 'Please enter a search term' });
   }
   try {
-    const filteredProducts = await searchProducts(searchTerm);
-    
+    const filteredProducts = await searchProducts(searchTerm);  
     if (filteredProducts.length === 0) {
-      return res.status(404).json({ message: 'No products found' });
+      return res.status(404).json({ message: 'No products match the search' });
     }
     res.status(200).json(filteredProducts); 
   } catch (error) {
-    res.status(500).json({ message: 'Failed to search products', error: error.message });
+    res.status(500).json({ message: 'Error searching for products', error: error.message });
   }
 });
 
 
 
-// Ruta za dodavanje proizvoda u košaricu
-app.post('/cart/add', async (req, res) => {
-  const { id } = req.body;
-  console.log(`Adding product ID: ${id} to cart`);
+app.post('/products/aftersearch', async (req, res) => {
+  const { searchTerm } = req.body;
 
-  const product = await getAllProducts().then(products => products.find(p => p.id === parseInt(id)));
+  if (!searchTerm) {
+    return res.status(400).json({ message: 'Please enter a search term' });
+  }
+
+  try {
+   
+    const filteredProducts = await searchProducts(searchTerm);
+
+    
+    const updatedProducts = filteredProducts.map(product => {
+      const cartItem = cart.find(item => item.id === product.id);
+      if (cartItem) {
+        
+        return { ...product, quantity: product.quantity - cartItem.quantity };
+      }
+      return product; 
+    });
+
+    if (updatedProducts.length === 0) {
+      return res.status(404).json({ message: 'No products match the search' });
+    }
+
+    res.status(200).json(updatedProducts); 
+  } catch (error) {
+    res.status(500).json({ message: 'Error searching for products', error: error.message });
+  }
+});
+
+
+app.post('/cart/add', async (req, res) => {
+  const { id, quantity } = req.body;
+  console.log(`Adding product ID: ${id} with quantity ${quantity} to cart`);
+
+  const products = await getAllProducts(); 
+  const product = products.find(p => p.id === parseInt(id));
 
   if (!product) {
     return res.status(404).json({ message: 'Product not found' });
   }
 
-  const existingProduct = cart.find(item => item.id === id);  // Provjera da li je proizvod već u košarici
+  const existingProduct = cart.find(item => item.id === id); 
   if (existingProduct) {
-    existingProduct.quantity += 1;  // Ako je proizvod u košarici, povećaj količinu
+    existingProduct.quantity += quantity; 
   } else {
-    cart.push({ ...product, quantity: 1 });  // Dodaj novi proizvod u košaricu
+    cart.push({ ...product, quantity }); 
   }
 
-  console.log(cart);
-  res.status(200).json({ cart });
+  
+  const updatedCart = cart.map(item => {
+    const product = products.find(p => p.id === item.id);
+    return { ...item, availableQuantity: product.quantity - item.quantity }; 
+  });
+
+  res.status(200).json({ cart: updatedCart });
 });
 
-// Ruta za dohvaćanje stanja košarice (proizvodi s količinama iz košarice)
+
 app.get('/cart/state', async (req, res) => {
   try {
-    const products = await getAllProducts();  // Dohvati sve proizvode
+    const products = await getAllProducts(); 
 
-    // Ažuriraj količine proizvoda prema stanju u košarici
+    
     const updatedCart = cart.map(item => {
       const product = products.find(p => p.id === item.id);
       if (product) {
@@ -97,53 +132,58 @@ app.get('/cart/state', async (req, res) => {
       return item;
     });
 
-    res.status(200).json({ cart: updatedCart });  // Pošaljemo ažuriranu košaricu
+    res.status(200).json({ cart: updatedCart }); 
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching cart state', error: error.message });
+    res.status(500).json({ message: 'Error fetching cart status', error: error.message });
   }
 });
 
-// Ruta za čišćenje košarice
+
 app.post('/cart/clear', async (req, res) => {
-  cart = [];  // Očisti košaricu
+  cart = []; 
   try {
-    const products = await getAllProducts();  // Ponovno dohvatiti sve proizvode
-    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2));  // Osigurajte da se promjene odražavaju u datoteci
-    res.status(200).json({ message: 'Cart cleared successfully', products });
+    const products = await getAllProducts();  
+    await fs.writeFile(productsFilePath, JSON.stringify(products, null, 2)); 
+    res.status(200).json({ message: 'Cart successfully cleared', products });
   } catch (error) {
-    res.status(500).json({ message: 'Failed to retrieve products after clearing cart', error: error.message });
+    res.status(500).json({ message: 'Error fetching products after clearing cart', error: error.message });
   }
 });
 
-// Ruta za checkout (kupovinu)
+
 app.post('/cart/checkout', async (req, res) => {
   const { cart: checkoutCart } = req.body;
   if (!checkoutCart || checkoutCart.length === 0) {
-    return res.status(400).json({ message: 'Cart is empty' });
+    return res.status(400).json({ message: 'The cart is empty' });
   }
 
   try {
-    const products = await getAllProducts();  // Dohvati sve proizvode
+    const products = await getAllProducts();  
 
-    // Provjerite dostupnost proizvoda u skladištu
+    
     for (const item of checkoutCart) {
       const existingProduct = products.find(p => p.id === item.id);
       if (!existingProduct || existingProduct.quantity < item.quantity) {
         return res.status(400).json({ message: `Not enough stock for product ${item.id}` });
       }
-      // Ažuriraj količinu proizvoda
+     
       await updateProductQuantity(item.id, item.quantity);
     }
 
-    // Nakon što je checkout uspješan, očisti košaricu
-    cart = [];  // Očisti košaricu u memoriji
+   
+    cart = [];  
+
+    
+    const updatedProducts = await getAllProducts();
+    await fs.writeFile(productsFilePath, JSON.stringify(updatedProducts, null, 2));  
+
     res.status(200).json({ message: 'Thank you for your purchase!' });
   } catch (error) {
-    res.status(500).json({ message: 'Error purchasing products', error });
+    res.status(500).json({ message: 'Error processing purchase', error });
   }
 });
 
-// Pokrenite server
+
 app.listen(PORT, () => {
-  console.log('Server running on', PORT);
+  console.log('Server is running on port', PORT);
 });

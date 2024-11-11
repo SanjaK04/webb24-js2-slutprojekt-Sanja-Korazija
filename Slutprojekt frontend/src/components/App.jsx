@@ -1,14 +1,17 @@
+//Hanterar applikationens tillstånd (kundvagn, produkter, nuvarande sida). Laddar produkter vid montering.
+
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './Navbar';
 import { ProductsPage } from './ProductsPage';
 import { CartPage } from './CartPage';
+import { ProductCard } from './ProductCard';
 
 export function App() {
   const [cart, setCart] = useState([]);
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState('products');
   const [thankYouMessage, setThankYouMessage] = useState('');
-  const [serverError, setServerError] = useState(false);
+  const [serverError, setServerError] = useState(false);  
 
   const fetchCartState = async () => {
     try {
@@ -25,62 +28,26 @@ export function App() {
     }
   };
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/products');
-      if (!response.ok) {
-        throw new Error('Failed to fetch products');
-      }
-      const data = await response.json();
-      setProducts(data);
-      setServerError(false);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setServerError(true);
-    }
-  };
-
-  const handleSearch = async (searchTerm) => {
-    try {
-      const response = await fetch('http://localhost:3000/products/aftersearch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ searchTerm }),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Failed to search products');
-      }
-  
-      const data = await response.json();
-  
-      // Zadrži stare količine proizvoda i samo ažuriraj listu proizvoda
-      setProducts((prevProducts) => {
-        return data.map((newProduct) => {
-          const existingProduct = prevProducts.find(p => p.id === newProduct.id);
-          return existingProduct ? { ...newProduct, quantity: existingProduct.quantity } : newProduct;
-        });
-      });
-  
-      setServerError(false);
-    } catch (error) {
-      console.error('Error searching products:', error);
-      setServerError(true);
-    }
-  };
-  
   useEffect(() => {
     fetchCartState();
+
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data);
+        setServerError(false);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setServerError(true);
+      }
+    };
+
     fetchProducts();
   }, []);
-
-  const updateProductQuantity = (productId, newQuantity) => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === productId ? { ...product, quantity: newQuantity } : product
-      )
-    );
-  };
 
   return (
     <div>
@@ -90,10 +57,10 @@ export function App() {
         setThankYouMessage={setThankYouMessage} 
         setProducts={setProducts}
         cart={cart}
-        handleSearch={handleSearch}  // Dodano za pretragu
-        serverError={serverError}
+        serverError={serverError} 
       />
 
+     
       {serverError && (
         <h3 className="error-message">
           The server is currently unavailable. Please try again later.
@@ -102,15 +69,14 @@ export function App() {
 
       {thankYouMessage && <h3 className="thank-you-message">{thankYouMessage}</h3>}
 
-      {!thankYouMessage && currentPage === 'products' && !serverError && (
-        <ProductsPage 
+      {!serverError && !thankYouMessage && currentPage === 'products' && (
+        <ProductsPage  
           products={products} 
           setCart={setCart} 
-          updateProductQuantity={updateProductQuantity}
-          cart={cart}
+          fetchCartState={fetchCartState} 
         />
       )}
-      {!thankYouMessage && currentPage === 'cart' && !serverError && (
+      {!serverError && !thankYouMessage && currentPage === 'cart' && (
         <CartPage 
           cart={cart} 
           setCart={setCart} 

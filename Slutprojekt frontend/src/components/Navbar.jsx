@@ -1,27 +1,28 @@
+//Möjliggör navigering mellan sidor (produkter och kundvagn). Implementerar produkt-sökning.
+
 import React, { useState, useEffect } from 'react';
 
-export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setProducts, cart, setCart }) {
+export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setProducts, cart, disabled }) {
   const [cartItemCount, setCartItemCount] = useState(0);
 
-  // Prati promjene u `cart` i ažuriraj `cartItemCount`
   useEffect(() => {
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    setCartItemCount(totalItems);
-  }, [cart]); // Reagira na promjene u košarici
-
-  // Funkcija za ažuriranje stanja košarice
-  const fetchCartState = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/cart/state');
-      if (!response.ok) {
-        throw new Error('Failed to fetch cart state');
+    const fetchCartState = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/cart/state');
+        if (response.ok) {
+          const data = await response.json();
+          const totalItems = data.cart.reduce((total, item) => total + item.quantity, 0);
+          setCartItemCount(totalItems);
+        } else {
+          alert('Failed to fetch cart state.');
+        }
+      } catch (error) {
+        alert('Error fetching cart state.');
       }
-      const data = await response.json();
-      setCart(data.cart);
-    } catch (error) {
-      console.error('Error fetching cart state:', error);
-    }
-  };
+    };
+
+    fetchCartState();
+  }, [cart]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -33,7 +34,7 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
     }
 
     try {
-      const response = await fetch('http://localhost:3000/products/search', {
+      const response = await fetch('http://localhost:3000/products/aftersearch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ searchTerm }),
@@ -41,12 +42,13 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
 
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        setProducts(data); 
       } else {
         const result = await response.json();
         alert(result.message || 'Error occurred during search');
       }
     } catch (error) {
+      console.error("Error fetching products:", error);
       alert("Failed to load products.");
     }
   };
@@ -54,7 +56,6 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
   const goToProducts = async () => {
     setCurrentPage('products');
     setThankYouMessage('');
-    await fetchCartState(); // Osiguraj da se stanje košarice ažurira kada se ide na proizvode
 
     try {
       const response = await fetch('http://localhost:3000/products');
@@ -64,6 +65,7 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
       const data = await response.json();
       setProducts(data);
     } catch (error) {
+      console.error("Error fetching products:", error);
       alert("Failed to load products.");
     }
   };
@@ -75,15 +77,25 @@ export function Navbar({ currentPage, setCurrentPage, setThankYouMessage, setPro
 
   return (
     <nav>
-      <button className="nav-button" onClick={goToProducts}>Products</button>
-      <button className="nav-button" onClick={goToCart}>
+      <button 
+        className="nav-button" 
+        onClick={goToProducts} 
+        disabled={disabled}
+      >
+        Products
+      </button>
+      <button 
+        className="nav-button" 
+        onClick={goToCart} 
+        disabled={disabled}
+      >
         Cart ({cartItemCount > 0 ? cartItemCount : ''})
       </button>
 
       {currentPage === 'products' && (
         <form onSubmit={handleSearch}>
-          <input type="text" name="search" placeholder="Search products..." />
-          <button type="submit" className="nav-button">Search</button>
+          <input type="text" name="search" placeholder="Search products..." disabled={disabled} />
+          <button type="submit" className="nav-button" disabled={disabled}>Search</button>
         </form>
       )}
     </nav>
