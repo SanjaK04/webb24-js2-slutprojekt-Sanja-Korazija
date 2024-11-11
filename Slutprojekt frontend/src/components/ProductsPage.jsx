@@ -1,4 +1,6 @@
-// Visar alla produkter med möjlighet till sortering. Använder komponenten ProductCard för att visa enskilda produkter.
+
+//Hanterar visning och sortering av produkter, samt hantering av produktkvantiteter för att uppdatera tillgängliga mängder.
+//Filtrerar produkter, tillåter sortering efter pris och skickar produktinformation till ProductCard-komponenten för att visa varje produkt.
 
 import React, { useState, useEffect } from 'react';
 import { ProductCard } from './ProductCard';

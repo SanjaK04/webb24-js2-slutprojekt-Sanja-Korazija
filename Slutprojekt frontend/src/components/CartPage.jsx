@@ -1,4 +1,6 @@
-//Visar produkter i kundvagnen, inklusive totalt pris. Möjliggör för användare att tömma kundvagnen eller genomföra köp.
+
+//Hanterar visning och interaktion med kundvagnen, inklusive hämtning av kundvagnens status från servern, tömning av kundvagnen och genomförande av betalning.
+//Uppdaterar kundvagnen och visar totalt pris, och erbjuder funktioner för att tömma kundvagnen eller gå vidare till betalning.
 
 import React, { useState, useEffect } from "react";
 

@@ -1,4 +1,7 @@
-//Hanterar applikationens tillstånd (kundvagn, produkter, nuvarande sida). Laddar produkter vid montering.
+
+//Hanterar tillstånd för kundvagn, produkter, sidnavigering och felmeddelanden. 
+//Hämtar initialt produktdata och kundvagnens status från servern, och renderar antingen produktsidan eller kundvagnen beroende på användarens val.
+
 
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './Navbar';

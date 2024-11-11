@@ -1,4 +1,5 @@
-//Huvudfilen för servern som definierar rutter för produkter och kundvagn.
+//Huvudfilen som hanterar produktlager och kundvagnens status, möjliggör hämtning av produkter, sökning, tillägg till kundvagnen och genomförande av köp.
+//Använder rutter för att hämta tillgängliga produkter, söka efter produkter, lägga till och kontrollera kundvagnens status, samt genomföra köp och uppdatera lager.
 
 import path from 'path';
 import express from 'express';

@@ -1,4 +1,7 @@
-//Möjliggör navigering mellan sidor (produkter och kundvagn). Implementerar produkt-sökning.
+
+//Hanterar navigering mellan produkter och kundvagn, visar antal varor i kundvagnen och hanterar produkt-sökning.
+//Hämtar kundvagnens status, uppdaterar antalet varor i kundvagnen och tillåter användaren att söka efter produkter eller byta sida.
+
 
 import React, { useState, useEffect } from 'react';
 

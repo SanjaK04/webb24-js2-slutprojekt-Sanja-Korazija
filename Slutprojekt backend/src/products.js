@@ -1,5 +1,4 @@
-//products.js: Innehåller funktioner för att läsa, 
-//söka och uppdatera produkter från JSON-filen (products.json). 
+//Innehåller funktioner för att läsa, söka och uppdatera produkter från JSON-filen (products.json).
 
 
 import fs from "fs/promises"; 

@@ -1,4 +1,6 @@
-//Grundläggande stil för produktkort, inklusive marginaler och padding
+
+//Visar detaljer om en produkt och hanterar funktionen att lägga till produkten i kundvagnen.
+//Uppdaterar produktens kvantitet, skickar en förfrågan för att lägga till produkten i kundvagnen, och uppdaterar kundvagnens innehåll vid framgång.
 
 import React from 'react';
 
