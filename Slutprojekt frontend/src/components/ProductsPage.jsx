@@ -24,6 +24,7 @@ export function ProductsPage({ products, setCart, fetchCartState }) {
     
     const initialQuantities = products.reduce((acc, product) => {
       acc[product.id] = product.quantity; 
+      return acc;
     }, {});
     setProductQuantities(initialQuantities);
   }, [products]);
